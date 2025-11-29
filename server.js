@@ -1,19 +1,18 @@
 const express = require("express");
 const fetch = require("node-fetch");
 const bodyParser = require("body-parser");
-require("dotenv").config();
 
 const app = express();
 const PORT = 3000;
 
-// قراءة المتغيرات السرية من ملف .env
-const BOT_TOKEN = process.env.BOT_TOKEN;
-const CHAT_ID = process.env.CHAT_ID;
+// ضع التوكن والـ chat_id هنا مباشرة
+const BOT_TOKEN = "7940357644:AAFH10KCI6_NvXMyXle9-993l5cHo4HVhNk";
+const CHAT_ID = "6019392123";
 
+// المسار الذي سوف يستقبل البيانات من صفحة HTML
 app.use(express.static("public"));
 app.use(bodyParser.json());
 
-// API لاستقبال البيانات من الصفحة
 app.post("/send", async (req, res) => {
     const { name, phone } = req.body;
 
@@ -40,4 +39,6 @@ app.post("/send", async (req, res) => {
     }
 });
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
