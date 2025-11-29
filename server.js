@@ -1,44 +1,45 @@
 const express = require("express");
 const fetch = require("node-fetch");
-const bodyParser = require("body-parser");
+const cors = require("cors");
 
 const app = express();
-const PORT = 3000;
 
-// ضع التوكن والـ chat_id هنا مباشرة
-const BOT_TOKEN = "7940357644:AAFH10KCI6_NvXMyXle9-993l5cHo4HVhNk";
-const CHAT_ID = "6019392123";
+// ✅ تفعيل CORS
+app.use(cors());
 
-// المسار الذي سوف يستقبل البيانات من صفحة HTML
-app.use(express.static("public"));
-app.use(bodyParser.json());
+// ✅ تمكين قراءة JSON من body
+app.use(express.json());
 
-app.post("/send", async (req, res) => {
-    const { name, phone } = req.body;
+// ✅ تمكين ملفات static من مجلد twasl
+app.use(express.static("twasl"));
 
-    const message = `📩 *بيانات جديدة*\n\n👤 الاسم: ${name}\n📞 الهاتف: ${phone}`;
+// توكن البوت و chat ID
+const TOKEN = "7940357644:AAFH10KCI6_NvXMyXle9-993l5cHo4HVhNk";
+const CHAT  = "6019392123";
 
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+// مسار استقبال البيانات من صفحة الدفع
+app.post("/pay", async (req, res) => {
+    const { name, phone, ref } = req.body;
+
+    const text = `💳 طلب اشتراك جديد
+👤 الاسم: ${name}
+📞 الهاتف: ${phone}
+🔢 رقم الحوالة: ${ref}`;
 
     try {
-        await fetch(url, {
+        await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                chat_id: CHAT_ID,
-                text: message,
-                parse_mode: "Markdown"
-            })
+            body: JSON.stringify({ chat_id: CHAT, text })
         });
 
-        res.json({ status: "success" });
+        res.json({ ok: true });
 
     } catch (error) {
-        console.error(error);
-        res.json({ status: "error" });
+        console.error("Error sending message:", error);
+        res.status(500).json({ ok: false, error: error.message });
     }
 });
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
